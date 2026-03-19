@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #172d5f;
+  --color-accent: #413d93;
+  --color-gradient: linear-gradient(180deg, #172d5f 0%, #413d93 100%);
+  --color-bg: #f5f5f7;
+  --color-bg-secondary: #eeeef2;
+  --color-text-primary: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-border: #e0e0e5;
+  --color-shadow: rgba(23, 45, 95, 0.08);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 90% 6%, rgba(65, 61, 147, 0.18), transparent 40%),
+    radial-gradient(circle at 8% 92%, rgba(23, 45, 95, 0.12), transparent 45%),
+    var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+::selection {
+  background: rgba(65, 61, 147, 0.18);
+}
+
+@layer components {
+  .data-table {
+    @apply w-full border-separate border-spacing-0 overflow-hidden text-sm;
+  }
+
+  .data-table thead th {
+    @apply border-b border-brand-border bg-brand-bg px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-brand-text-secondary;
+  }
+
+  .data-table tbody td {
+    @apply border-b border-brand-border/80 px-4 py-3 align-middle text-brand-text;
+  }
+
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+}
+
+
