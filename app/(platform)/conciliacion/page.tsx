@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo } from "react";
 import { ArrowLeftRight, Filter, TriangleAlert } from "lucide-react";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { Panel } from "@/components/shared/panel";
@@ -8,9 +11,15 @@ import { formatDateTime, formatDelta, formatMoney, formatPercent, formatUnits } 
 import { summarizeReconciliation } from "@/lib/inventory";
 
 export default function ReconciliationPage() {
-  const summary = summarizeReconciliation(reconciliationRows);
-  const sortedRows = [...reconciliationRows].sort((a, b) => Math.abs(b.valueDiff) - Math.abs(a.valueDiff));
+  const rows = reconciliationRows;
+  const summary = useMemo(() => summarizeReconciliation(rows), [rows]);
+  const sortedRows = useMemo(
+    () => [...rows].sort((a, b) => Math.abs(b.valueDiff) - Math.abs(a.valueDiff)),
+    [rows],
+  );
   const variancePercent = (summary.diffValue / 105346.8) * 100;
+
+  const resolvedToday = rows.filter((row) => row.resolutionStatus === "resolved").length;
 
   return (
     <div className="space-y-6">
@@ -27,11 +36,11 @@ export default function ReconciliationPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-brand-text-secondary">
               Esta pantalla concentra la diferencia operacional critica del negocio: valida stock, prioriza
-              inconsistencias y traduce brechas a impacto economico para acelerar decisiones.
+              inconsistencias y permite corregirlas dentro del flujo operativo.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <StatusBadge tone="critical">{summary.criticalSkus} SKUs criticos</StatusBadge>
+              <StatusBadge tone="critical">{summary.criticalSkus} lotes criticos</StatusBadge>
               <StatusBadge tone="warning">{summary.warningSkus} en seguimiento</StatusBadge>
               <StatusBadge tone="success">{formatPercent(summary.conciledRate)} conciliado</StatusBadge>
             </div>
@@ -40,7 +49,9 @@ export default function ReconciliationPage() {
           <div className="relative rounded-2xl border border-white/20 bg-white/10 p-5 text-white backdrop-blur lg:bg-transparent">
             <p className="text-xs uppercase tracking-[0.16em] text-white/80">Impacto consolidado al corte</p>
             <p className="mt-3 text-4xl font-semibold">{formatMoney(summary.diffValue)}</p>
-            <p className="mt-2 text-sm text-white/85">Variacion equivalente al {formatPercent(variancePercent)} del inventario valorizado.</p>
+            <p className="mt-2 text-sm text-white/85">
+              Variacion equivalente al {formatPercent(variancePercent)} del inventario valorizado.
+            </p>
             <div className="mt-5 h-2.5 rounded-full bg-white/25">
               <div className="h-full rounded-full bg-white" style={{ width: `${Math.min(variancePercent * 18, 100)}%` }} />
             </div>
@@ -65,19 +76,19 @@ export default function ReconciliationPage() {
         <KpiCard
           title="Items conciliados"
           value={formatUnits(summary.conciledSkus)}
-          helper="SKUs sin desviacion relevante"
+          helper="Lotes sin desviacion relevante"
           tone="success"
         />
         <KpiCard
-          title="Ultimo sync"
-          value="08:20"
-          helper="Conector bodega en ejecucion"
+          title="Correcciones cerradas"
+          value={formatUnits(resolvedToday)}
+          helper="Diferencias resueltas en flujo"
         />
       </section>
 
       <Panel
         title="Matriz comparativa de conciliacion"
-        subtitle="Comparacion SKU a SKU entre SIESA y bodega externa con priorizacion automatica"
+        subtitle="Comparacion por SKU y numero de importacion entre SIESA y bodega externa"
         action={
           <div className="flex items-center gap-2">
             <button className="inline-flex items-center gap-2 rounded-lg border border-brand-border px-3 py-1.5 text-xs font-semibold text-brand-text-secondary hover:bg-brand-bg">
@@ -95,6 +106,7 @@ export default function ReconciliationPage() {
             <thead>
               <tr>
                 <th>SKU</th>
+                <th>Importacion</th>
                 <th>Producto</th>
                 <th>Linea</th>
                 <th>SIESA</th>
@@ -109,8 +121,9 @@ export default function ReconciliationPage() {
             </thead>
             <tbody>
               {sortedRows.map((row) => (
-                <tr key={row.sku} className="hover:bg-brand-bg/70">
+                <tr key={`${row.sku}::${row.importNumber}`} className="hover:bg-brand-bg/70">
                   <td className="font-semibold text-brand-navy">{row.sku}</td>
+                  <td>{row.importNumber}</td>
                   <td>{row.name}</td>
                   <td>{row.line}</td>
                   <td>{formatUnits(row.siesaUnits)}</td>
@@ -124,14 +137,30 @@ export default function ReconciliationPage() {
                   </td>
                   <td>{formatDateTime(row.lastSyncAt)}</td>
                   <td>
-                    <StatusBadge
-                      tone={row.state === "critical" ? "critical" : row.state === "warning" ? "warning" : "success"}
-                    >
-                      {row.state}
-                    </StatusBadge>
+                    <div className="flex flex-wrap gap-1.5">
+                      <StatusBadge
+                        tone={row.state === "critical" ? "critical" : row.state === "warning" ? "warning" : "success"}
+                      >
+                        {row.state}
+                      </StatusBadge>
+                      <StatusBadge
+                        tone={
+                          row.resolutionStatus === "resolved"
+                            ? "success"
+                            : row.resolutionStatus === "in-progress"
+                              ? "info"
+                              : "neutral"
+                        }
+                      >
+                        {row.resolutionStatus}
+                      </StatusBadge>
+                    </div>
                   </td>
                   <td>
-                    <Link href={`/productos/${row.sku}`} className="text-sm font-semibold text-brand-indigo hover:underline">
+                    <Link
+                      href={`/productos/${row.sku}?importacion=${encodeURIComponent(row.importNumber)}`}
+                      className="inline-flex rounded-lg bg-brand-navy px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-indigo"
+                    >
                       Analizar
                     </Link>
                   </td>
@@ -146,16 +175,16 @@ export default function ReconciliationPage() {
         <Panel title="Recomendaciones operativas" subtitle="Acciones sugeridas por impacto de diferencia">
           <ul className="space-y-3 text-sm text-brand-text-secondary">
             <li className="rounded-xl border border-brand-border bg-brand-bg p-4">
-              <p className="font-semibold text-brand-text">1. Validar picking de RIN-NUT-022 en bodega externa</p>
-              <p className="mt-1">Diferencia de 62 unidades con impacto de {formatMoney(675.8)}.</p>
+              <p className="font-semibold text-brand-text">1. Validar picking de RIN-NUT-022 (IMP-2403)</p>
+              <p className="mt-1">Diferencia de 48 unidades con impacto de {formatMoney(523.2)}.</p>
             </li>
             <li className="rounded-xl border border-brand-border bg-brand-bg p-4">
-              <p className="font-semibold text-brand-text">2. Revisar latencia de registro de salidas para RIN-NUT-050</p>
+              <p className="font-semibold text-brand-text">2. Revisar latencia de salidas para RIN-NUT-050 (IMP-2402)</p>
               <p className="mt-1">Existe desfase temporal entre despacho fisico y actualizacion SIESA.</p>
             </li>
             <li className="rounded-xl border border-brand-border bg-brand-bg p-4">
-              <p className="font-semibold text-brand-text">3. Programar conteo ciclico en linea Skincare</p>
-              <p className="mt-1">Reducir recurrencia de variaciones menores en items de alta rotacion.</p>
+              <p className="font-semibold text-brand-text">3. Validar lote historico IMP-2312 en linea Nutricion</p>
+              <p className="mt-1">Variaciones por costo de importacion impactan cierre de valor.</p>
             </li>
           </ul>
         </Panel>
@@ -164,7 +193,7 @@ export default function ReconciliationPage() {
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5">
             <p className="inline-flex items-center gap-2 text-sm font-semibold text-rose-700">
               <TriangleAlert className="h-4 w-4" />
-              Riesgo medio-alto por 2 SKUs criticos
+              Riesgo {summary.criticalSkus > 0 ? "medio-alto" : "controlado"} por {summary.criticalSkus} lotes criticos
             </p>
             <p className="mt-2 text-sm text-rose-700/90">
               La diferencia acumulada en valor puede afectar cierre de costo de ventas si no se concilia antes del corte
@@ -181,5 +210,3 @@ export default function ReconciliationPage() {
     </div>
   );
 }
-
-

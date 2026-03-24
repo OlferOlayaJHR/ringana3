@@ -20,7 +20,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          title="SKUs conciliados"
+          title="Lotes conciliados"
           value={formatPercent(summary.conciledRate)}
           helper={`${summary.conciledSkus} de ${summary.totalSkus} alineados entre fuentes`}
           tone="success"
@@ -41,7 +41,7 @@ export default function DashboardPage() {
           trend={-34.4}
         />
         <KpiCard
-          title="SKUs criticos"
+          title="Lotes criticos"
           value={formatUnits(summary.criticalSkus)}
           helper={`${summary.warningSkus} en seguimiento preventivo`}
           trend={-18.7}
@@ -83,6 +83,7 @@ export default function DashboardPage() {
               <thead>
                 <tr>
                   <th>SKU</th>
+                  <th>Importacion</th>
                   <th>Producto</th>
                   <th>Diferencia uds</th>
                   <th>Diferencia valor</th>
@@ -91,8 +92,9 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {topDiff.map((row) => (
-                  <tr key={row.sku}>
+                  <tr key={`${row.sku}-${row.importNumber}`}>
                     <td className="font-semibold text-brand-navy">{row.sku}</td>
+                    <td>{row.importNumber}</td>
                     <td>{row.name}</td>
                     <td>{formatDelta(row.unitDiff)}</td>
                     <td>{formatMoney(row.valueDiff)}</td>

@@ -46,7 +46,9 @@ export default function FileUploadPage() {
           <article className="rounded-xl border border-dashed border-brand-border bg-brand-bg p-4">
             <ShieldCheck className="h-6 w-6 text-brand-indigo" />
             <p className="mt-3 font-semibold text-brand-text">2. Validacion estructural</p>
-            <p className="mt-1 text-sm text-brand-text-secondary">Control de columnas, SKUs y costos unitarios.</p>
+            <p className="mt-1 text-sm text-brand-text-secondary">
+              Control de columnas, SKU, numero de importacion y costos unitarios.
+            </p>
           </article>
           <article className="rounded-xl border border-dashed border-brand-border bg-brand-bg p-4">
             <FileSpreadsheet className="h-6 w-6 text-brand-indigo" />
@@ -62,6 +64,7 @@ export default function FileUploadPage() {
                 <th>ID</th>
                 <th>Fuente</th>
                 <th>Archivo</th>
+                <th>Importacion</th>
                 <th>Filas</th>
                 <th>Validadas</th>
                 <th>Importado</th>
@@ -74,6 +77,7 @@ export default function FileUploadPage() {
                   <td className="font-semibold text-brand-navy">{upload.id}</td>
                   <td>{upload.source}</td>
                   <td>{upload.fileName}</td>
+                  <td>{upload.importNumber}</td>
                   <td>{formatUnits(upload.rows)}</td>
                   <td>{formatUnits(upload.validatedRows)}</td>
                   <td>{formatDateTime(upload.importedAt)}</td>

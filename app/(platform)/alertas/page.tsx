@@ -19,7 +19,9 @@ export default function AlertsPage() {
                   <p className="text-xs uppercase tracking-[0.12em] text-brand-text-secondary">{alert.id}</p>
                   <h3 className="mt-1 text-lg font-semibold text-brand-text">{alert.title}</h3>
                   <p className="mt-2 text-sm text-brand-text-secondary">
-                    SKU: <span className="font-medium text-brand-text">{alert.sku}</span> | Detectada: {formatDateTime(alert.detectedAt)}
+                    SKU: <span className="font-medium text-brand-text">{alert.sku}</span> | Importacion:{" "}
+                    <span className="font-medium text-brand-text">{alert.importNumber}</span> | Detectada:{" "}
+                    {formatDateTime(alert.detectedAt)}
                   </p>
                 </div>
                 <div className="flex gap-2">

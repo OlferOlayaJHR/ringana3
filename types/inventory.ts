@@ -4,6 +4,7 @@ export type ProductStatus = "active" | "watch" | "critical";
 
 export interface Product {
   sku: string;
+  importNumber: string;
   name: string;
   line: ProductLine;
   format: string;
@@ -21,6 +22,7 @@ export interface Movement {
   id: string;
   occurredAt: string;
   sku: string;
+  importNumber: string;
   type: MovementType;
   source: "SIESA" | "Bodega" | "Ajuste";
   quantity: number;
@@ -33,14 +35,18 @@ export interface UploadBatch {
   id: string;
   source: "SIESA" | "Bodega";
   fileName: string;
+  importNumber: string;
   importedAt: string;
   rows: number;
   status: "processed" | "processing" | "error";
   validatedRows: number;
 }
 
+export type ResolutionStatus = "pending" | "in-progress" | "resolved";
+
 export interface ReconciliationRow {
   sku: string;
+  importNumber: string;
   name: string;
   line: ProductLine;
   siesaUnits: number;
@@ -49,12 +55,15 @@ export interface ReconciliationRow {
   unitDiff: number;
   valueDiff: number;
   state: "conciled" | "warning" | "critical";
+  resolutionStatus: ResolutionStatus;
+  resolvedAt?: string;
   lastSyncAt: string;
 }
 
 export interface AlertItem {
   id: string;
   sku: string;
+  importNumber: string;
   title: string;
   severity: "high" | "medium" | "low";
   detectedAt: string;
