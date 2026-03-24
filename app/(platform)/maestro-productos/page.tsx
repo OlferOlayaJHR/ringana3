@@ -32,6 +32,7 @@ export default function ProductMasterPage() {
             <thead>
               <tr>
                 <th>SKU</th>
+                <th>Importacion</th>
                 <th>Producto</th>
                 <th>Linea</th>
                 <th>Presentacion</th>
@@ -45,8 +46,9 @@ export default function ProductMasterPage() {
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.sku}>
+                <tr key={`${product.sku}-${product.importNumber}`}>
                   <td className="font-semibold text-brand-navy">{product.sku}</td>
+                  <td>{product.importNumber}</td>
                   <td>
                     <p className="font-medium">{product.name}</p>
                     <p className="text-xs text-brand-text-secondary">Ult mov: {formatDateTime(product.lastMovementAt)}</p>

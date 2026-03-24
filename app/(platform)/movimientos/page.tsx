@@ -28,8 +28,10 @@ export default function InventoryMovementsPage() {
             <p className="mt-1 text-sm text-brand-text-secondary">Despachos, ventas y picking tercerizado</p>
           </article>
           <article className="rounded-xl border border-brand-border bg-brand-bg p-4">
-            <p className="text-xs uppercase tracking-[0.14em] text-brand-text-secondary">SKUs con movimiento</p>
-            <p className="mt-2 text-2xl font-semibold text-brand-text">{new Set(movements.map((item) => item.sku)).size}</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-brand-text-secondary">Lotes con movimiento</p>
+            <p className="mt-2 text-2xl font-semibold text-brand-text">
+              {new Set(movements.map((item) => `${item.sku}-${item.importNumber}`)).size}
+            </p>
             <p className="mt-1 text-sm text-brand-text-secondary">Sobre un total de {products.length} SKUs activos</p>
           </article>
         </div>
@@ -43,6 +45,7 @@ export default function InventoryMovementsPage() {
                 <th>ID</th>
                 <th>Fecha</th>
                 <th>SKU</th>
+                <th>Importacion</th>
                 <th>Tipo</th>
                 <th>Fuente</th>
                 <th>Cantidad</th>
@@ -57,6 +60,7 @@ export default function InventoryMovementsPage() {
                   <td className="font-semibold text-brand-navy">{movement.id}</td>
                   <td>{formatDateTime(movement.occurredAt)}</td>
                   <td>{movement.sku}</td>
+                  <td>{movement.importNumber}</td>
                   <td>
                     <StatusBadge
                       tone={
